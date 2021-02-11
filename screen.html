@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous"
+    />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+
+    <title>Coding Quiz</title>
+  </head>
+  <body>
+    <style>
+      .hide {
+        display: none;
+      } 
+      .btn {
+        margin: 10px;
+      
+      }
+      p {
+        border: 1px solid grey;
+        font-size: 20px;
+        /* font-weight: bold; */
+        font-family: monospace;
+        text-align: center;
+        padding: 10px
+        
+      }
+      h1 {
+        font-family: monospace;
+        color: coral;
+        text-align: center;
+      }
+      .start {
+        text-align: center;
+      }
+      button {
+        border: 1px solid grey;
+      }
+
+    </style>
+    <nav>
+      
+      <p>Time: <span id="time">0</span></p>
+    </nav>
+    <div id="instructions" class="container start">
+      <h1>Mini Quiz</h1>
+
+      <button id="start" class="btn btn-secondary">Start Quiz</button>
+    </div>
+    <div class="card-body">
+    <div id="questions" class="hide">
+      <h2 id="title"></h2>
+      <div id="choices" class="choices"></div>
+    </div>
+    <div id="results" class="hide">
+      <h2>All done!</h2>
+      <p>Your final score is <span id="score"></span>.</p>
+      
+    </div>
+    <div id="showselection" class="showselection hide"></div>
+    <div>
+    <!-- <button onclick="getScore()" class="btn btn-secondary">View Highscores</button></div> -->
+
+    <!-- Button trigger modal -->
+<button onclick="showthelist()" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+  Score
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">High Score</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>
+          Enter initials: <input type="text" id="initials" max="3" />
+          
+        </p>
+        <ul class="list-group">
+          
+          
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button onclick="clearingScores()" type="button" class="btn btn-secondary">Clear</button>
+        <button onclick="saveHighscore()" id="submit" class="btn btn-secondary">Submit</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+    <script>
+      // list of all questions, choices, and answers
+      var questions = [
+        {
+          title: "What is the statue of liberity made out of?",
+          choices: [
+            " Marble",
+            " Stone",
+            " Concrete",
+            " Copper",
+          ],
+          answer: " Copper",
+        },
+        {
+          title: "Where is the Eiffle tower located?",
+          choices: [
+            " Germany",
+            " Greece",
+            " Paris",
+            " Italy",
+          ],
+          answer: "Paris",
+        },
+        {
+          title: "Choose the correct HTML element for the largest heading:",
+          choices: [
+           "h1",
+           "h5",
+           "heading",
+           "head"
+          ],
+          answer: "h1",
+        },
+        {
+          title: "What city in China has the Oriental Pearl?",
+          choices: [
+          " Shanghai",
+          " Beijing",
+          " Wuhan",
+          " Tianjin"
+        ],
+          answer: "Shanghai",
+        },
+        
+      ];
+
+      // variables to keep track of quiz state
+      var questionIndex = 0;
+      var time = questions.length * 15;
+      var interval;
+
+      // variables to reference DOM elements
+      var question = document.querySelector("#questions");
+      var timer = document.querySelector("#time");
+      var options = document.querySelector("#choices");
+      var submit = document.querySelector("#submit");
+      var start = document.querySelector("#start");
+      var initial = document.querySelector("#initials");
+      var showselection = document.querySelector("#showselection");
+
+      function startQuiz() {
+        var startScreen = document.querySelector("#instructions");
+        startScreen.setAttribute("class", "hide");
+
+        question.removeAttribute("class");
+
+        interval = setInterval(clockTick, 1000);
+
+        timer.textContent = time;
+
+        getQuestion();
+      }
+      
+      function getQuestion() {
+        // get current question object from array
+        var cQuestion = questions[questionIndex];
+
+        // update title with current question
+        var title = document.querySelector("#title");
+        title.textContent = cQuestion.title;
+
+        options.innerHTML = "";
+
+        //loop over choices the i = index and the 0 is the starting array it goes 0,1,2,3 = to 4 arrays. 
+        //The i++ is increasing the array each time which is circuling the arrays based on what variable we are reffering to, for example it could be cuirculing through the questions , choices, etc,.
+        for (var i = 0; i < cQuestion.choices.length; i++) {
+          var choice = cQuestion.choices[i];
+          //create button for each choice
+          var selection = document.createElement("button");
+          selection.setAttribute("class", "btn btn-secondary choice ");
+          selection.setAttribute("value", choice);
+          //this below it making the number values the 1. , 2. , and 3.
+          selection.textContent = i + 1 + ". " + choice;
+          // attach click event listener
+          selection.onclick = questionClick;
+          console.log(selection);
+          //attach to query selector options
+          options.appendChild(selection);
+          
+        }
+      }
+  var submitcounter= 0
+      function questionClick() {
+        if (this.value !== questions[questionIndex].answer) {
+          time -= 15;
+
+          if (time < 0) {
+            time = 0;
+          }
+
+          timer.textContent = time;
+
+          showselection.textContent = "Wrong!";
+        } else {
+          showselection.textContent = "Correct!";
+        }
+
+        showselection.setAttribute("class", "showselection");
+        setTimeout(function () {
+          showselection.setAttribute("class", "showselection hide");
+        }, 1000);
+
+        questionIndex++;
+
+        if (questionIndex === questions.length) {
+          submitcounter =1
+          quizEnd();
+        } else {
+          getQuestion();
+        }
+      }
+
+      function quizEnd() {
+        clearInterval(interval);
+
+        var endScreen = document.querySelector("#results");
+        endScreen.removeAttribute("class");
+
+        var finalScore = document.querySelector("#score");
+        finalScore.textContent = time;
+
+        question.setAttribute("class", "hide");
+      }
+
+      function clockTick() {
+        time--;
+        timer.textContent = time;
+
+        if (time <= 0) {
+          quizEnd();
+        }
+      }
+    
+      function saveHighscore() {
+        var initials = initial.value.trim();
+
+        // make sure value wasn't empty
+        if (initials !== "") {
+          // get saved scores from localstorage, or if not any, set to empty array
+          var highscores =
+            JSON.parse(window.localStorage.getItem("highscores")) || [];
+
+          // format new score object for current user
+          var newScore = {
+            score: time,
+            initials: initials,
+          };
+
+          // save to localstorage
+          highscores.push(newScore);
+          window.localStorage.setItem("highscores", JSON.stringify(highscores));
+// location.reload()
+          // window.location.href = "highscores.html";
+        }
+       
+        if((document.getElementById('initials').value !== "")&&(submitcounter === 1)){
+          var condition = JSON.parse(localStorage.getItem('highscores')).length;
+        if(localStorage.length !== 0){
+          while(document.querySelector('.list-group-item')){
+            document.querySelector('.list-group-item').remove();
+
+          }
+          for( var k = 0 ; k <  condition ; k++){
+          var retrievedObject = localStorage.getItem('highscores');
+          var x = JSON.parse(retrievedObject)
+          var playerName = x[k].initials
+           playerScore= x[k].score
+          var score = document.createElement('li');
+          score.setAttribute("class","list-group-item ");
+          score.textContent = "Player: "+ playerName + " got : " + playerScore;
+          document.querySelector(".list-group").appendChild(score);
+          }
+          
+        }
+
+      }submitcounter =0
+      location.reload();
+    }
+      function clearingScores(){
+        if(localStorage.length !== 0){
+          while(document.querySelector('.list-group-item')){
+            document.querySelector('.list-group-item').remove();
+localStorage.clear()
+          }
+      }}
+
+      function showthelist(){
+      if(localStorage.length !== 0){
+          while(document.querySelector('.list-group-item')){
+            document.querySelector('.list-group-item').remove();
+
+          }
+          for( var k = 0 ; k <  JSON.parse(localStorage.getItem('highscores')).length ; k++){
+          var retrievedObject = localStorage.getItem('highscores');
+          var x = JSON.parse(retrievedObject)
+          var playerName = x[k].initials
+          var playerScore= x[k].score
+          var score = document.createElement('li');
+          score.setAttribute("class","list-group-item ");
+          score.textContent = "Player: "+ playerName + " got : " + playerScore;
+          document.querySelector(".list-group").appendChild(score);
+          }
+          
+        } }
+      submit.onclick = saveHighscore;
+
+      start.onclick = startQuiz;
+    </script>
+  </body>
+</html>
